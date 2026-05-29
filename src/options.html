@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FullTouch — Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="card">
+      <header>
+        <img src="../icons/icon48.png" width="40" height="40" alt="" />
+        <div>
+          <h1>FullTouch</h1>
+          <p class="sub">Fullscreen touch controls for 2-in-1 laptops</p>
+        </div>
+      </header>
+
+      <section>
+        <label class="row switch">
+          <span>
+            <strong>Enabled</strong>
+            <small>Turn all gestures and the nav bar on or off.</small>
+          </span>
+          <input type="checkbox" id="enabled" />
+        </label>
+      </section>
+
+      <section>
+        <h2>Gesture</h2>
+        <label class="row">
+          <span>
+            <strong>Top-edge zone</strong>
+            <small>How close to the top edge a swipe must start (px).</small>
+          </span>
+          <input type="number" id="edgeZonePx" min="8" max="160" step="4" />
+        </label>
+        <label class="row">
+          <span>
+            <strong>Reveal distance</strong>
+            <small>How far down the swipe must travel to reveal the bar (px).</small>
+          </span>
+          <input type="number" id="thresholdPx" min="16" max="320" step="4" />
+        </label>
+      </section>
+
+      <section>
+        <h2>Nav bar</h2>
+        <label class="row">
+          <span>
+            <strong>Pull tab</strong>
+            <small>Show a small tab at the top to open the bar (a reliable touch target).</small>
+          </span>
+          <select id="grabber">
+            <option value="fullscreen">Only in fullscreen</option>
+            <option value="always">Always</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+        <label class="row switch">
+          <span>
+            <strong>Show reload button</strong>
+            <small>Include a reload button in the bar.</small>
+          </span>
+          <input type="checkbox" id="showReload" />
+        </label>
+        <label class="row">
+          <span>
+            <strong>Search engine</strong>
+            <small>Used when the address box isn't a URL.</small>
+          </span>
+          <select id="searchEngine">
+            <option value="google">Google</option>
+            <option value="bing">Bing</option>
+            <option value="duckduckgo">DuckDuckGo</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </label>
+        <label class="row" id="customRow" hidden>
+          <span>
+            <strong>Custom search URL</strong>
+            <small>Use <code>%s</code> where the query goes.</small>
+          </span>
+          <input type="text" id="customSearchTemplate" placeholder="https://example.com/search?q=%s" />
+        </label>
+      </section>
+
+      <section>
+        <h2>Troubleshooting</h2>
+        <label class="row switch">
+          <span>
+            <strong>Debug overlay</strong>
+            <small>Show a live readout of touch events and fullscreen detection (bottom-right).</small>
+          </span>
+          <input type="checkbox" id="debug" />
+        </label>
+      </section>
+
+      <section class="tips">
+        <h2>Tips</h2>
+        <ul>
+          <li>In fullscreen, swipe down from the very top edge to reveal the bar.</li>
+          <li>Tap anywhere off the bar, swipe up on the bar, or press <kbd>Esc</kbd> to hide it without leaving fullscreen.</li>
+          <li>Tap <strong>✕</strong> to leave fullscreen entirely.</li>
+          <li>Keyboard fallbacks (editable at <code>chrome://extensions/shortcuts</code>): <kbd>Alt</kbd>+<kbd>N</kbd> toggles the bar, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> exits fullscreen.</li>
+        </ul>
+      </section>
+
+      <footer>
+        <span id="status" class="status" aria-live="polite"></span>
+      </footer>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

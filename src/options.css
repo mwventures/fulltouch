@@ -1,0 +1,120 @@
+:root {
+  --bg: #0f1115;
+  --card: #181b22;
+  --line: #262a33;
+  --text: #e8eaed;
+  --muted: #9aa0aa;
+  --accent: #6366f1;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 32px 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+header img { border-radius: 10px; }
+h1 { margin: 0; font-size: 22px; }
+.sub { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+section {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+}
+
+.row span { display: flex; flex-direction: column; }
+.row small { color: var(--muted); font-size: 12px; }
+
+input[type="number"],
+input[type="text"],
+select {
+  background: #0f1115;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+input[type="text"] { min-width: 260px; }
+input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+.switch input[type="checkbox"] {
+  appearance: none;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: #2a2f3a;
+  position: relative;
+  cursor: pointer;
+  transition: background 150ms;
+  flex: none;
+}
+.switch input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 150ms;
+}
+.switch input[type="checkbox"]:checked { background: var(--accent); }
+.switch input[type="checkbox"]:checked::after { transform: translateX(18px); }
+
+.tips ul { margin: 0; padding-left: 18px; color: var(--muted); }
+.tips li { margin: 4px 0; }
+
+kbd {
+  background: #0f1115;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 12px;
+}
+code { background: #0f1115; border-radius: 4px; padding: 1px 5px; font-size: 13px; }
+
+footer { padding-top: 16px; }
+.status { color: var(--accent); font-size: 13px; min-height: 18px; }
