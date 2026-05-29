@@ -188,7 +188,37 @@
       border-radius: 8px; z-index: 2147483647; white-space: pre-wrap;
       pointer-events: none;
     }
-    @media (prefers-reduced-motion: reduce) { .bar { transition: none; } }
+    /* Fullscreen coach mark — text on top, bobbing down-arrow below. */
+    .hint {
+      position: fixed; top: 12px; left: 100px;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      z-index: 2147483647; pointer-events: none;
+      opacity: 0; visibility: hidden;
+      transition: opacity 240ms ease, visibility 0s linear 240ms;
+    }
+    .hint.show {
+      opacity: 1; visibility: visible;
+      transition: opacity 240ms ease;
+      animation: ft-bob 1100ms ease-in-out infinite;
+    }
+    .hint .label {
+      padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+      background: rgba(28, 28, 32, 0.94); color: #00bcd4;
+      font: 600 14px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      text-shadow: 0 0 7px rgba(0, 188, 212, 0.55);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(0, 188, 212, 0.5);
+      backdrop-filter: blur(8px);
+    }
+    .hint .arrow { color: #00bcd4; filter: drop-shadow(0 0 6px rgba(0, 188, 212, 0.7)); }
+    .hint .arrow svg { display: block; width: 26px; height: 26px; }
+    @keyframes ft-bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bar { transition: none; }
+      .hint.show { animation: none; }
+    }
   `;
 
   // Stroke-based icons (24x24 viewBox), drawn in currentColor so each button's
@@ -200,6 +230,7 @@
     reload: "M21 4v6h-6 M20.49 15a9 9 0 1 1-2.12-9.36L21 10",
     collapse: "M5 15l7-7 7 7",
     exit: "M6 6l12 12 M18 6L6 18",
+    arrowDown: "M12 5v14 M6 13l6 6 6-6",
   };
 
   function svgIcon(name) {
@@ -299,15 +330,26 @@
       if (grabStart != null) { grabStart = null; showBar(); } // tap also opens
     });
 
+    // --- first-fullscreen hint (text on top, bobbing down-arrow below) ---
+    const hint = document.createElement("div");
+    hint.className = "hint";
+    const hintLabel = document.createElement("div");
+    hintLabel.className = "label";
+    hintLabel.textContent = "Swipe down to access controls";
+    const hintArrow = document.createElement("div");
+    hintArrow.className = "arrow";
+    hintArrow.appendChild(svgIcon("arrowDown"));
+    hint.append(hintLabel, hintArrow);
+
     // --- debug HUD ---
     const hudEl = document.createElement("div");
     hudEl.className = "hud";
     hudEl.style.display = "none";
 
-    root.append(style, backdrop, bar, grabber, hudEl);
+    root.append(style, backdrop, bar, grabber, hint, hudEl);
     (document.body || document.documentElement).appendChild(host);
 
-    ui = { host, root, bar, backdrop, url, reloadBtn, grabber, hudEl };
+    ui = { host, root, bar, backdrop, url, reloadBtn, grabber, hint, hudEl };
     applySettings();
     return ui;
   }
@@ -343,6 +385,7 @@
     ui.url.value = location.href;
     ui.bar.classList.add("open");
     ui.backdrop.classList.add("open");
+    hideFullscreenHint();
     updateGrabber();
   }
 
@@ -363,8 +406,34 @@
     return !!(ui && ui.bar.classList.contains("open"));
   }
 
-  // Re-evaluate the grabber when the window resizes (entering/leaving F11).
-  window.addEventListener("resize", updateGrabber, { passive: true });
+  // ---- Fullscreen coach mark ------------------------------------------
+  // Shown every time the user enters *browser* (F11) fullscreen — not video
+  // element fullscreen, which has its own controls. Mirrors Chrome's own
+  // "Press Esc to exit full screen" hint, which also re-appears on each entry.
+  let hintTimer = null;
+
+  function showFullscreenHint() {
+    if (!settings.enabled || !ui || barIsOpen()) return;
+    ui.hint.classList.add("show");
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(hideFullscreenHint, 3000);
+  }
+
+  function hideFullscreenHint() {
+    clearTimeout(hintTimer);
+    if (ui) ui.hint.classList.remove("show");
+  }
+
+  // Re-evaluate the grabber and hint on resize (entering/leaving F11 fires one).
+  // Track the rising edge into browser fullscreen.
+  let wasBrowserFs = isLikelyFullscreen() && !document.fullscreenElement;
+  window.addEventListener("resize", () => {
+    updateGrabber();
+    const isBrowserFs = isLikelyFullscreen() && !document.fullscreenElement;
+    if (isBrowserFs && !wasBrowserFs) showFullscreenHint();
+    else if (!isBrowserFs && wasBrowserFs) hideFullscreenHint();
+    wasBrowserFs = isBrowserFs;
+  }, { passive: true });
 
   // ---- Top-edge swipe (secondary trigger) -----------------------------------
   // Touch events (not pointer events) are used here because only touchmove can

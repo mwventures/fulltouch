@@ -18,10 +18,13 @@ const DEFAULTS = {
   debug: false,
 };
 
-// Seed defaults on first install so the options page and content script agree.
-chrome.runtime.onInstalled.addListener(async () => {
+// Seed defaults on first install so the options page and content script agree,
+// and open the options page once as onboarding — only on a fresh install, not
+// on updates or browser restarts.
+chrome.runtime.onInstalled.addListener(async (details) => {
   const stored = await chrome.storage.sync.get(DEFAULTS);
   await chrome.storage.sync.set({ ...DEFAULTS, ...stored });
+  if (details.reason === "install") chrome.runtime.openOptionsPage();
 });
 
 // Exit the *browser* window's fullscreen state. windowId comes from the sender

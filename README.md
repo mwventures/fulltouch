@@ -3,7 +3,9 @@
 A Chrome extension for touchscreen 2-in-1 laptops. In browser fullscreen (F11),
 Chrome hides the tab strip and address bar, and there's **no touch gesture** to
 bring them back or to leave fullscreen — the top-edge reveal only works with a
-mouse. FullTouch fixes that.
+mouse. FullTouch fixes that, and adds a two-finger swipe for switching tabs.
+
+## Gestures
 
 **Swipe down from the top edge** in fullscreen to reveal a slim nav bar with:
 
@@ -16,17 +18,28 @@ mouse. FullTouch fixes that.
 Swipe up on the bar or press <kbd>Esc</kbd> to dismiss it without leaving
 fullscreen.
 
+**Swipe two fingers sideways to switch tabs** (touchscreen) — swipe right for the
+previous (left) tab, swipe left for the next, wrapping around at the ends. It
+works in or out of fullscreen; single-finger swipe-to-go-back is left untouched.
+Turn it off or reverse the direction in Settings.
+
+Prefer a visible target to a blind swipe? Enable the optional **pull tab** in
+Settings — a small handle at the top edge you can tap or drag down to open the
+bar.
+
 ## How it works
 
 Chrome's *browser* fullscreen (F11) is owned by the browser, not the page — a
 web page can't leave it and `document.exitFullscreen()` has no effect on it. So
 FullTouch splits the work:
 
-- A **content script** detects the top-edge swipe and renders the nav bar inside
-  a **Shadow DOM** overlay (isolated from page CSS), staying in fullscreen.
-- The **service worker** is the only context with `chrome.windows` access, so the
-  **✕** button messages it to call `chrome.windows.update({ state: "normal" })`,
-  which is what actually drops the window out of fullscreen.
+- A **content script** detects the gestures and renders the nav bar inside a
+  **Shadow DOM** overlay (isolated from page CSS), staying in fullscreen.
+- The **service worker** is the only context with `chrome.windows` /
+  `chrome.tabs` access, so it handles the privileged actions: **✕** asks it to
+  call `chrome.windows.update({ state: "normal" })` (which actually drops the
+  window out of fullscreen), and the two-finger swipe asks it to activate the
+  next/previous tab.
 - **Keyboard fallbacks** (`chrome.commands`) cover pages where content scripts
   can't run (chrome://, the Web Store, the new-tab page).
 
@@ -42,12 +55,13 @@ Default shortcuts (editable at `chrome://extensions/shortcuts`):
 
 ## Settings
 
-Right-click the toolbar icon → **Options** (or the extension's *Details* →
-*Extension options*). Configure the edge zone, reveal distance, search engine,
-and whether the reload button shows.
+Click the toolbar icon to open the options page (or right-click it → **Options**).
+Configure the top-edge zone and reveal distance, two-finger tab switching and its
+direction, the optional pull tab, the search engine, and whether the reload
+button shows.
 
 ## Privacy
 
 FullTouch collects and transmits **no data**. The `<all_urls>` host permission
-is required only so the swipe gesture works on every site; nothing about the
-pages you visit leaves your device.
+is required only so the gestures work on every site; nothing about the pages you
+visit leaves your device.

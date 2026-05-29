@@ -4,6 +4,11 @@ All notable changes to FullTouch are recorded here. Newest at the top.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-05-29
+- Added a donation callout to the top of the options page — optional GitHub Sponsors support to keep the project (and Cookie, our Chief Canine Officer, in biscuits) going.
+- The options page now opens automatically the first time you install the extension, so the settings (and gestures) are easy to find.
+- Each time you enter fullscreen (F11), a brief "Swipe down to access controls" hint with a bobbing down-arrow appears for ~3 seconds — like Chrome's own "Press Esc" hint.
+
 ## [0.2.0] — 2026-05-29
 - Two-finger horizontal swipe switches tabs on touchscreens: swipe right → the previous (left) tab, swipe left → the next (right) tab, wrapping at the ends. On by default; toggle it or reverse the direction in the options page.
 - Pull tab is now off by default (previously shown only in fullscreen). Reveal the bar with a top-edge swipe down, or re-enable the pull tab in the options page.

@@ -118,3 +118,41 @@ code { background: #0f1115; border-radius: 4px; padding: 1px 5px; font-size: 13p
 
 footer { padding-top: 16px; }
 .status { color: var(--accent); font-size: 13px; min-height: 18px; }
+
+/* Donation CTA (top of the card) — cyan callout linking to GitHub Sponsors. */
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 188, 212, 0.4);
+  border-radius: 12px;
+  background: rgba(0, 188, 212, 0.08);
+  color: var(--text);
+  text-decoration: none;
+  transition: background 150ms, border-color 150ms;
+}
+.cta:hover { background: rgba(0, 188, 212, 0.14); border-color: rgba(0, 188, 212, 0.6); }
+.cta-pic {
+  flex: none;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(0, 188, 212, 0.5);
+}
+.cta-body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.cta-text { margin: 0; font-size: 13.5px; line-height: 1.45; }
+.cta-text strong { color: #00bcd4; }
+.cta-btn {
+  align-self: flex-start;
+  background: #00bcd4;
+  color: #06232a;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.cta:hover .cta-btn { background: #1fd0e6; }
