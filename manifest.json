@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FullTouch — Fullscreen Touch Controls",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Swipe down from the top edge in fullscreen to reveal a nav bar (back/forward, URL & search) and exit fullscreen. Built for touchscreen 2-in-1 laptops.",
   "minimum_chrome_version": "116",
   "permissions": ["storage"],
@@ -18,7 +18,7 @@
     }
   ],
   "action": {
-    "default_title": "FullTouch — toggle nav bar",
+    "default_title": "FullTouch — settings",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

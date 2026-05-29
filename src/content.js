@@ -14,13 +14,14 @@
 (() => {
   if (window.top !== window || window.__fullTouchInjected) return;
   window.__fullTouchInjected = true;
-  console.info("[FullTouch] content script loaded");
 
   const DEFAULTS = {
     enabled: true,
     edgeZonePx: 64, // how close to the top edge a swipe must start
     thresholdPx: 40, // how far down the swipe must travel to reveal the bar
-    grabber: "fullscreen", // "fullscreen" | "always" | "off" — when to show the pull tab
+    tabSwitch: true, // two-finger horizontal swipe switches tabs (touchscreen)
+    tabSwitchReverse: false, // flip which swipe direction goes to which tab
+    grabber: "off", // "fullscreen" | "always" | "off" — when to show the pull tab
     searchEngine: "google",
     customSearchTemplate: "https://example.com/search?q=%s",
     showReload: true,
@@ -401,6 +402,71 @@
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && barIsOpen()) hideBar();
   }, true);
+
+  // ---- Two-finger horizontal swipe → switch tabs ----------------------------
+  // Touchscreen only. Two fingers panning horizontally switch tabs. Chrome maps
+  // a two-finger horizontal swipe to its native back/forward, so once we
+  // recognize ours we preventDefault to claim it (single-finger swipe-back is
+  // left alone). Tab activation needs chrome.tabs, so the worker does it.
+  const TAB_SWIPE_THRESHOLD_PX = 50; // horizontal travel of the midpoint to fire
+  const PINCH_TOLERANCE_PX = 30; // finger-spread change beyond this = pinch, not swipe
+
+  let twoActive = false; // currently tracking a 2-finger gesture
+  let twoFired = false; // already switched tabs during this gesture
+  let twoStartCx = 0;
+  let twoStartCy = 0;
+  let twoStartSpread = 0;
+
+  // Midpoint and finger-spread are symmetric in the two touches, so they don't
+  // care which finger lands in touches[0] vs touches[1] across events.
+  const midX = (a, b) => (a.clientX + b.clientX) / 2;
+  const midY = (a, b) => (a.clientY + b.clientY) / 2;
+  const spreadOf = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+
+  window.addEventListener("touchstart", (e) => {
+    if (!settings.enabled || !settings.tabSwitch || e.touches.length !== 2) {
+      twoActive = false;
+      return;
+    }
+    const a = e.touches[0];
+    const b = e.touches[1];
+    twoStartCx = midX(a, b);
+    twoStartCy = midY(a, b);
+    twoStartSpread = spreadOf(a, b);
+    twoActive = true;
+    twoFired = false;
+  }, { passive: true, capture: true });
+
+  window.addEventListener("touchmove", (e) => {
+    if (!twoActive || e.touches.length !== 2) return;
+    // Once claimed, keep canceling so native swipe-nav can't fire late.
+    if (twoFired) { if (e.cancelable) e.preventDefault(); return; }
+
+    const a = e.touches[0];
+    const b = e.touches[1];
+    if (Math.abs(spreadOf(a, b) - twoStartSpread) > PINCH_TOLERANCE_PX) {
+      twoActive = false; // it's a pinch/zoom — hand it back to the browser
+      return;
+    }
+    const dx = midX(a, b) - twoStartCx;
+    const dy = midY(a, b) - twoStartCy;
+    if (Math.abs(dx) <= TAB_SWIPE_THRESHOLD_PX || Math.abs(dx) <= Math.abs(dy)) return;
+
+    twoFired = true;
+    if (e.cancelable) e.preventDefault();
+    // Swipe right (dx > 0): fingers move left→right → previous (left) tab.
+    let dir = dx > 0 ? "prev" : "next";
+    if (settings.tabSwitchReverse) dir = dir === "prev" ? "next" : "prev";
+    hud(`tab switch ${dir} dx=${Math.round(dx)}`);
+    chrome.runtime.sendMessage({ type: "cycleTab", dir }).catch(() => {});
+  }, { passive: false, capture: true });
+
+  function resetTwoFinger() {
+    twoActive = false;
+    twoFired = false;
+  }
+  window.addEventListener("touchend", resetTwoFinger, { passive: true, capture: true });
+  window.addEventListener("touchcancel", resetTwoFinger, { passive: true, capture: true });
 
   // ---- Messages from the service worker -------------------------------------
   chrome.runtime.onMessage.addListener((msg) => {

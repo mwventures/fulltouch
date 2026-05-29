@@ -9,7 +9,9 @@ const DEFAULTS = {
   enabled: true,
   edgeZonePx: 64, // how close to the top edge a swipe must start
   thresholdPx: 40, // how far down the swipe must travel to reveal the bar
-  grabber: "fullscreen", // "fullscreen" | "always" | "off" — when to show the pull tab
+  tabSwitch: true, // two-finger horizontal swipe switches tabs (touchscreen)
+  tabSwitchReverse: false, // flip which swipe direction goes to which tab
+  grabber: "off", // "fullscreen" | "always" | "off" — when to show the pull tab
   searchEngine: "google", // google | bing | duckduckgo | custom
   customSearchTemplate: "https://example.com/search?q=%s",
   showReload: true,
@@ -37,9 +39,32 @@ async function exitWindowFullscreen(windowId) {
   }
 }
 
+// Switch to the previous/next tab in the sender's window, wrapping around.
+// dir: "prev" (toward the first tab) | "next" (toward the last). Reads only
+// id/index/active, so — like the windowId above — it needs no "tabs" permission.
+async function cycleTab(windowId, dir) {
+  if (windowId == null || (dir !== "prev" && dir !== "next")) return;
+  try {
+    // query() isn't guaranteed to be index-ordered, so sort to be safe.
+    const tabs = (await chrome.tabs.query({ windowId })).sort((a, b) => a.index - b.index);
+    if (tabs.length < 2) return; // nothing to switch to
+    const pos = tabs.findIndex((t) => t.active);
+    if (pos === -1) return;
+    const n = tabs.length;
+    const target = dir === "next" ? (pos + 1) % n : (pos - 1 + n) % n;
+    await chrome.tabs.update(tabs[target].id, { active: true });
+  } catch (e) {
+    // Tab/window may have closed mid-gesture; nothing actionable.
+  }
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "exitFullscreen") {
     exitWindowFullscreen(sender.tab?.windowId).then(() => sendResponse({ ok: true }));
+    return true; // async response
+  }
+  if (msg?.type === "cycleTab") {
+    cycleTab(sender.tab?.windowId, msg.dir).then(() => sendResponse({ ok: true }));
     return true; // async response
   }
   return false;
@@ -60,9 +85,11 @@ chrome.commands.onCommand.addListener(async (command) => {
   }
 });
 
-// Toolbar button toggles the bar on the active tab.
-chrome.action.onClicked.addListener((tab) => {
-  if (tab?.id != null) sendToTab(tab.id, { type: "toggleNavbar" });
+// Clicking the toolbar icon opens the settings page. (In F11 fullscreen the
+// real toolbar isn't visible anyway, so toggling the bar from here never made
+// sense — the Alt+N command, the pull tab, and the top-edge swipe cover that.)
+chrome.action.onClicked.addListener(() => {
+  chrome.runtime.openOptionsPage();
 });
 
 function sendToTab(tabId, message) {

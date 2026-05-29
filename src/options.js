@@ -5,7 +5,9 @@ const DEFAULTS = {
   enabled: true,
   edgeZonePx: 64,
   thresholdPx: 40,
-  grabber: "fullscreen",
+  tabSwitch: true,
+  tabSwitchReverse: false,
+  grabber: "off",
   searchEngine: "google",
   customSearchTemplate: "https://example.com/search?q=%s",
   showReload: true,
@@ -16,6 +18,8 @@ const fields = {
   enabled: { el: "enabled", type: "checkbox" },
   edgeZonePx: { el: "edgeZonePx", type: "number" },
   thresholdPx: { el: "thresholdPx", type: "number" },
+  tabSwitch: { el: "tabSwitch", type: "checkbox" },
+  tabSwitchReverse: { el: "tabSwitchReverse", type: "checkbox" },
   grabber: { el: "grabber", type: "value" },
   showReload: { el: "showReload", type: "checkbox" },
   searchEngine: { el: "searchEngine", type: "value" },
@@ -55,10 +59,16 @@ function syncCustomRow() {
   $("customRow").hidden = $("searchEngine").value !== "custom";
 }
 
+function syncTabSwitchRow() {
+  // The reverse-direction toggle only matters when tab switching is on.
+  $("tabSwitchReverseRow").hidden = !$("tabSwitch").checked;
+}
+
 async function load() {
   const stored = await chrome.storage.sync.get(DEFAULTS);
   for (const key of Object.keys(fields)) writeField(key, stored[key]);
   syncCustomRow();
+  syncTabSwitchRow();
 }
 
 async function saveField(key) {
@@ -72,6 +82,7 @@ for (const key of Object.keys(fields)) {
     : fields[key].type === "checkbox" ? "change" : "input";
   el.addEventListener(evt, () => {
     if (key === "searchEngine") syncCustomRow();
+    if (key === "tabSwitch") syncTabSwitchRow();
     saveField(key);
   });
 }
