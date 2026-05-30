@@ -1,35 +1,35 @@
-# FullTouch — Fullscreen Touch Controls
+# FullTouch - Fullscreen Touch Controls
 
 A Chrome extension for touchscreen 2-in-1 laptops. In browser fullscreen (F11),
 Chrome hides the tab strip and address bar, and there's **no touch gesture** to
-bring them back or to leave fullscreen — the top-edge reveal only works with a
+bring them back or to leave fullscreen - the top-edge reveal only works with a
 mouse. FullTouch fixes that, and adds a two-finger swipe for switching tabs.
 
 ## Gestures
 
 **Swipe down from the top edge** in fullscreen to reveal a slim nav bar with:
 
-- **‹ / ›** — back / forward
-- **⟳** — reload (optional)
-- **address box** — type a URL or a search query
-- **⌃** — hide the bar (stay in fullscreen)
-- **✕** — exit fullscreen entirely
+- **‹ / ›** - back / forward
+- **⟳** - reload (optional)
+- **address box** - type a URL or a search query
+- **⌃** - hide the bar (stay in fullscreen)
+- **✕** - exit fullscreen entirely
 
 Swipe up on the bar or press <kbd>Esc</kbd> to dismiss it without leaving
 fullscreen.
 
-**Swipe two fingers sideways to switch tabs** (touchscreen) — swipe right for the
+**Swipe two fingers sideways to switch tabs** (touchscreen) - swipe right for the
 previous (left) tab, swipe left for the next, wrapping around at the ends. It
 works in or out of fullscreen; single-finger swipe-to-go-back is left untouched.
 Turn it off or reverse the direction in Settings.
 
 Prefer a visible target to a blind swipe? Enable the optional **pull tab** in
-Settings — a small handle at the top edge you can tap or drag down to open the
+Settings - a small handle at the top edge you can tap or drag down to open the
 bar.
 
 ## How it works
 
-Chrome's *browser* fullscreen (F11) is owned by the browser, not the page — a
+Chrome's *browser* fullscreen (F11) is owned by the browser, not the page - a
 web page can't leave it and `document.exitFullscreen()` has no effect on it. So
 FullTouch splits the work:
 
@@ -63,13 +63,13 @@ button shows.
 ## Privacy
 
 **FullTouch collects no data. None. Ever.** It has no servers, no analytics, and
-contains **no networking code of any kind** — there is nothing in it that *could*
+contains **no networking code of any kind** - there is nothing in it that *could*
 send your data anywhere. It never reads, stores, or transmits the pages you
 visit. Your settings are saved only in your own Chrome (`chrome.storage.sync`).
 
 **About the scary install warning.** Chrome will say FullTouch can “read and
 change all your data on all sites.” That warning is mandatory for *any* extension
-allowed to run on every website — and FullTouch's gestures have to work
+allowed to run on every website - and FullTouch's gestures have to work
 everywhere you browse, so it has to request `<all_urls>`. But “allowed to run on
 every site” is not “collects your data”: the extension only watches for touch
 gestures and draws its own nav bar on top of the page. It's open-source, so you
@@ -77,7 +77,7 @@ can verify every line yourself.
 
 See [`PRIVACY.md`](PRIVACY.md) for the full policy.
 
-<!-- THANKS — reveal at public launch by deleting this opening line and the closing line below.
+<!-- THANKS - reveal at public launch by deleting this opening line and the closing line below.
 
 ## Thanks 🦴
 

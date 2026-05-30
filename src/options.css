@@ -151,6 +151,7 @@ footer { padding-top: 16px; }
   font-size: 12.5px;
   cursor: pointer;
   list-style: none;
+  text-align: center;
   text-decoration: underline dotted;
   text-underline-offset: 3px;
 }
