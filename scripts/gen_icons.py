@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate FullTouch's PNG icons with no third-party dependencies.
 
-The mark: an indigo rounded square with a white pill (the nav bar) near the top
+The mark: a cyan rounded square with a white pill (the nav bar) near the top
 and a white downward arrow below it (swipe down to reveal). Rendered at 4x and
 box-downsampled for anti-aliasing.
 
@@ -16,8 +16,8 @@ import zlib
 
 SS = 4  # supersampling factor
 
-BG = (99, 102, 241)      # indigo (#6366f1)
-BG2 = (79, 70, 229)      # deeper indigo for a subtle vertical gradient
+BG = (0, 188, 212)       # cyan (#00bcd4)
+BG2 = (0, 151, 167)      # deeper cyan (#0097a7) for a subtle vertical gradient
 FG = (255, 255, 255)
 
 

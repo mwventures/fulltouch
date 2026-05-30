@@ -4,6 +4,11 @@ All notable changes to FullTouch are recorded here. Newest at the top.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-05-29
+- Fixed the fullscreen "Swipe down" hint reappearing on every tab while cycling tabs — it now shows once per fullscreen session.
+- Refreshed the accent color to cyan throughout — the app icon, the options toggle switches, and focus highlights (previously indigo).
+- Added a subtle, shimmering "♥ Donate" pill to the nav bar (just left of the collapse button), linking to GitHub Sponsors.
+
 ## [0.3.0] — 2026-05-29
 - Added a donation callout to the top of the options page — optional GitHub Sponsors support to keep the project (and Cookie, our Chief Canine Officer, in biscuits) going.
 - The options page now opens automatically the first time you install the extension, so the settings (and gestures) are easy to find.

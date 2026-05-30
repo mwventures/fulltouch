@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FullTouch — Fullscreen Touch Controls",
-  "version": "0.3.0",
-  "description": "Swipe down from the top edge in fullscreen to reveal a nav bar (back/forward, URL & search) and exit fullscreen. Built for touchscreen 2-in-1 laptops.",
+  "version": "0.4.0",
+  "description": "For tablets in fullscreen. Swipe down from the top to reveal a nav bar or exit fullscreen; 2-finger swipe left/right switches tabs.",
   "minimum_chrome_version": "116",
   "permissions": ["storage"],
   "host_permissions": ["<all_urls>"],

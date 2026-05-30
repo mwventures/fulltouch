@@ -65,3 +65,13 @@ button shows.
 FullTouch collects and transmits **no data**. The `<all_urls>` host permission
 is required only so the gestures work on every site; nothing about the pages you
 visit leaves your device.
+
+<!-- THANKS — reveal at public launch by deleting this opening line and the closing line below.
+
+## Thanks 🦴
+
+FullTouch is free and open-source. Huge thanks to the folks keeping our Chief Canine
+Officer, Cookie Nibblestien, in ample biscuit supplies! (Add the sponsor markers from
+scripts/sponsor-tiers.md here, or list names by hand.)
+-->
+

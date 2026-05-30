@@ -153,8 +153,37 @@
       border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 999px;
       background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 15px; outline: none;
     }
-    .url:focus { border-color: #6366f1; background: rgba(255, 255, 255, 0.14); }
+    .url:focus { border-color: #00bcd4; background: rgba(255, 255, 255, 0.14); }
     .url::placeholder { color: rgba(255, 255, 255, 0.5); }
+
+    /* Donate pill — subtle cyan with a left-to-right shimmer + slight glow. */
+    .donate {
+      position: relative; overflow: hidden;
+      display: inline-flex; align-items: center; gap: 6px;
+      box-sizing: border-box; height: 40px; padding: 0 12px;
+      border-radius: 999px; flex: none;
+      color: #00bcd4; font-size: 13px; font-weight: 600; line-height: 1;
+      text-decoration: none; white-space: nowrap; user-select: none;
+      border: 1px solid rgba(0, 188, 212, 0.45);
+      background: rgba(0, 188, 212, 0.1);
+      box-shadow: 0 0 8px rgba(0, 188, 212, 0.3);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .donate:hover { background: rgba(0, 188, 212, 0.18); }
+    .donate svg { display: block; width: 15px; height: 15px; }
+    .donate svg, .donate span { position: relative; z-index: 1; }
+    .donate::before {
+      content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background: linear-gradient(100deg, transparent 35%, rgba(200, 250, 255, 0.45) 50%, transparent 65%);
+      transform: translateX(-100%);
+      animation: donate-shimmer 3s ease-in-out infinite;
+    }
+    /* Don't bother animating while the bar is hidden. */
+    .bar:not(.open) .donate::before { animation-play-state: paused; }
+    @keyframes donate-shimmer {
+      0% { transform: translateX(-100%); }
+      55%, 100% { transform: translateX(100%); }
+    }
 
     /* Tap-to-dismiss layer — only present while the bar is open. Sits just
        below the bar and swallows the tap so the page isn't activated. */
@@ -218,6 +247,7 @@
     @media (prefers-reduced-motion: reduce) {
       .bar { transition: none; }
       .hint.show { animation: none; }
+      .donate::before { animation: none; }
     }
   `;
 
@@ -247,6 +277,20 @@
     svg.appendChild(p);
     return svg;
   }
+
+  // Filled heart for the Donate pill (the icons above are stroke-only).
+  function heartIcon() {
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "currentColor");
+    svg.setAttribute("aria-hidden", "true");
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", "M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z");
+    svg.appendChild(p);
+    return svg;
+  }
+
+  const SPONSOR_URL = "https://github.com/sponsors/mwventures";
 
   let ui = null;
 
@@ -300,7 +344,20 @@
 
     const collapseBtn = mk("", "Hide bar", "collapse", hideBar);
     const exitBtn = mk("exit", "Exit fullscreen", "exit", exitFullscreen);
-    bar.append(backBtn, fwdBtn, reloadBtn, url, collapseBtn, exitBtn);
+
+    // Donate pill — opens GitHub Sponsors in a new tab.
+    const donateBtn = document.createElement("a");
+    donateBtn.className = "donate";
+    donateBtn.href = SPONSOR_URL;
+    donateBtn.target = "_blank";
+    donateBtn.rel = "noopener noreferrer";
+    donateBtn.title = "Support FullTouch";
+    donateBtn.setAttribute("aria-label", "Donate to support FullTouch");
+    const donateText = document.createElement("span");
+    donateText.textContent = "Donate";
+    donateBtn.append(heartIcon(), donateText);
+
+    bar.append(backBtn, fwdBtn, reloadBtn, url, donateBtn, collapseBtn, exitBtn);
 
     // swipe up on the bar collapses it
     let barStartY = null;
@@ -407,9 +464,11 @@
   }
 
   // ---- Fullscreen coach mark ------------------------------------------
-  // Shown every time the user enters *browser* (F11) fullscreen — not video
-  // element fullscreen, which has its own controls. Mirrors Chrome's own
-  // "Press Esc to exit full screen" hint, which also re-appears on each entry.
+  // Shown once each time the user enters *browser* (F11) fullscreen — not video
+  // element fullscreen (which has its own controls), and not again when cycling
+  // tabs within the same fullscreen period. Each tab is a separate content
+  // script, so the once-per-window-session dedupe lives in the worker; we just
+  // ask before showing (see the resize handler).
   let hintTimer = null;
 
   function showFullscreenHint() {
@@ -425,13 +484,23 @@
   }
 
   // Re-evaluate the grabber and hint on resize (entering/leaving F11 fires one).
-  // Track the rising edge into browser fullscreen.
+  // Track the rising edge into browser fullscreen. Switching tabs also re-lays
+  // out the newly-shown tab at fullscreen size, which looks like a fresh entry
+  // here — so the worker decides whether the hint actually shows (once per
+  // window session). The document.hidden guard keeps a background tab from
+  // claiming the hint before the visible one does.
   let wasBrowserFs = isLikelyFullscreen() && !document.fullscreenElement;
   window.addEventListener("resize", () => {
     updateGrabber();
     const isBrowserFs = isLikelyFullscreen() && !document.fullscreenElement;
-    if (isBrowserFs && !wasBrowserFs) showFullscreenHint();
-    else if (!isBrowserFs && wasBrowserFs) hideFullscreenHint();
+    if (isBrowserFs && !wasBrowserFs && !document.hidden) {
+      chrome.runtime.sendMessage({ type: "fullscreenHintCheck" })
+        .then((resp) => { if (resp && resp.show) showFullscreenHint(); })
+        .catch(() => {});
+    } else if (!isBrowserFs && wasBrowserFs) {
+      hideFullscreenHint();
+      chrome.runtime.sendMessage({ type: "fullscreenExited" }).catch(() => {});
+    }
     wasBrowserFs = isBrowserFs;
   }, { passive: true });
 

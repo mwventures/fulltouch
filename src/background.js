@@ -61,6 +61,13 @@ async function cycleTab(windowId, dir) {
   }
 }
 
+// The fullscreen coach mark should appear once per fullscreen *session* for a
+// window, not once per tab. Each tab is a separate content script, so the one
+// shared worker tracks which windows have already shown it: the content script
+// asks before showing and tells us when fullscreen exits.
+const hintShownWindows = new Set();
+chrome.windows.onRemoved.addListener((windowId) => hintShownWindows.delete(windowId));
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "exitFullscreen") {
     exitWindowFullscreen(sender.tab?.windowId).then(() => sendResponse({ ok: true }));
@@ -69,6 +76,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "cycleTab") {
     cycleTab(sender.tab?.windowId, msg.dir).then(() => sendResponse({ ok: true }));
     return true; // async response
+  }
+  if (msg?.type === "fullscreenHintCheck") {
+    // Show the coach mark only for the first tab to enter fullscreen per window.
+    const wid = sender.tab?.windowId;
+    let show = false;
+    if (wid != null && !hintShownWindows.has(wid)) {
+      hintShownWindows.add(wid);
+      show = true;
+    }
+    sendResponse({ show });
+    return true;
+  }
+  if (msg?.type === "fullscreenExited") {
+    if (sender.tab?.windowId != null) hintShownWindows.delete(sender.tab.windowId);
+    return false;
   }
   return false;
 });
