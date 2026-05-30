@@ -77,6 +77,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     cycleTab(sender.tab?.windowId, msg.dir).then(() => sendResponse({ ok: true }));
     return true; // async response
   }
+  if (msg?.type === "newTab") {
+    // Open in the gesture's own window (like cycleTab). chrome.tabs.create needs
+    // no "tabs" permission — that permission only gates reading sensitive tab
+    // fields, not creating tabs — so the minimal-permission stance is preserved.
+    chrome.tabs.create({ windowId: sender.tab?.windowId })
+      .then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }));
+    return true; // async response
+  }
   if (msg?.type === "fullscreenHintCheck") {
     // Show the coach mark only for the first tab to enter fullscreen per window.
     const wid = sender.tab?.windowId;

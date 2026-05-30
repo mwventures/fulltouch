@@ -260,6 +260,7 @@
     reload: "M21 4v6h-6 M20.49 15a9 9 0 1 1-2.12-9.36L21 10",
     collapse: "M5 15l7-7 7 7",
     exit: "M6 6l12 12 M18 6L6 18",
+    plus: "M12 5v14 M5 12h14",
     arrowDown: "M12 5v14 M6 13l6 6 6-6",
   };
 
@@ -329,6 +330,13 @@
     const backBtn = mk("", "Back", "back", () => history.back());
     const fwdBtn = mk("", "Forward", "forward", () => history.forward());
     const reloadBtn = mk("reload", "Reload", "reload", () => location.reload());
+    // New tab opens via the worker (chrome.tabs). The new tab lands on Chrome's
+    // new-tab page where this content script can't run, so close our bar here —
+    // it reinjects automatically once that tab navigates to a real page.
+    const newTabBtn = mk("", "New tab", "plus", () => {
+      chrome.runtime.sendMessage({ type: "newTab" }).catch(() => {});
+      hideBar();
+    });
 
     const url = document.createElement("input");
     url.className = "url";
@@ -357,7 +365,7 @@
     donateText.textContent = "Donate";
     donateBtn.append(heartIcon(), donateText);
 
-    bar.append(backBtn, fwdBtn, reloadBtn, url, donateBtn, collapseBtn, exitBtn);
+    bar.append(backBtn, fwdBtn, reloadBtn, newTabBtn, url, donateBtn, collapseBtn, exitBtn);
 
     // swipe up on the bar collapses it
     let barStartY = null;

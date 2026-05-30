@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FullTouch — Fullscreen Touch Controls",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "For tablets in fullscreen. Swipe down from the top to reveal a nav bar or exit fullscreen; 2-finger swipe left/right switches tabs.",
   "minimum_chrome_version": "116",
   "permissions": ["storage"],

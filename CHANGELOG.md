@@ -4,6 +4,9 @@ All notable changes to FullTouch are recorded here. Newest at the top.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-05-29
+- Added a "+" new-tab button to the nav bar (just right of reload) that opens a new tab.
+
 ## [0.4.0] — 2026-05-29
 - Fixed the fullscreen "Swipe down" hint reappearing on every tab while cycling tabs — it now shows once per fullscreen session.
 - Refreshed the accent color to cyan throughout — the app icon, the options toggle switches, and focus highlights (previously indigo).
