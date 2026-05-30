@@ -8,6 +8,23 @@
   </head>
   <body>
     <main class="card">
+      <section class="privacy" aria-label="Privacy">
+        <div class="privacy-badge">
+          <svg class="privacy-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="11" width="16" height="9" rx="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+          </svg>
+          <div class="privacy-text">
+            <strong>No data collected. None. Ever.</strong>
+            <small>FullTouch has no servers and no analytics. It never reads, stores, or transmits the pages you visit — nothing leaves your device. Your settings below are saved only in your own Chrome.</small>
+          </div>
+        </div>
+        <details class="privacy-why">
+          <summary>Then why does Chrome warn it can “read and change all your data on all sites”?</summary>
+          <p>That warning is mandatory for <em>any</em> extension allowed to run on every website — and FullTouch's gestures have to work everywhere you browse, so it has to ask. But “allowed to run on every site” is not “collects your data.” FullTouch only watches for touch gestures and draws its own nav bar on top of the page. It contains <strong>no networking code of any kind</strong> — no fetch, no tracking, no phone-home — so there is literally nothing in it that <em>could</em> send your data anywhere.</p>
+        </details>
+      </section>
+
       <a class="cta" href="https://github.com/sponsors/mwventures" target="_blank" rel="noopener noreferrer">
         <img class="cta-pic" src="../assets/cookie.jpg" alt="Cookie, our Chief Canine Officer" />
         <div class="cta-body">

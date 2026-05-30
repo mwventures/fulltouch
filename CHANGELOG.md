@@ -4,6 +4,11 @@ All notable changes to FullTouch are recorded here. Newest at the top.
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-05-30
+- Fixed the nav bar, the fullscreen hint, and the exit (✕) button being unreachable or mis-placed when the page was scrolled down — the overlay is now anchored to the screen at any scroll position, even on sites that apply a CSS transform to the page (which previously made it scroll away with the content).
+- Exiting fullscreen with ✕ now restores a maximized window (matching Chrome's own F11 exit) instead of a small floating one.
+- Added a prominent "No data collected. Ever." privacy banner to the top of the options page, with an expandable explanation of why Chrome's "all sites" install warning doesn't mean data collection.
+
 ## [0.5.0] — 2026-05-29
 - Added a "+" new-tab button to the nav bar (just right of reload) that opens a new tab.
 

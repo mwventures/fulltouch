@@ -34,8 +34,11 @@ async function exitWindowFullscreen(windowId) {
   try {
     const win = await chrome.windows.get(windowId);
     if (win.state === "fullscreen") {
-      // "normal" returns to the windowed state and brings the real toolbar back.
-      await chrome.windows.update(windowId, { state: "normal" });
+      // Restore to "maximized" (not "normal"), matching Chrome's own F11-exit
+      // behavior: it brings the real toolbar back without dropping a maximized
+      // window down to a small floating one. On 2-in-1 tablets the window is
+      // virtually always maximized, so this is the least surprising result.
+      await chrome.windows.update(windowId, { state: "maximized" });
     }
   } catch (e) {
     // Window may have closed; nothing actionable.

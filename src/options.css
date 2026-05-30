@@ -119,6 +119,51 @@ code { background: #0f1115; border-radius: 4px; padding: 1px 5px; font-size: 13p
 footer { padding-top: 16px; }
 .status { color: var(--accent); font-size: 13px; min-height: 18px; }
 
+/* Privacy banner (very top of the card) — the first thing seen on first run.
+   Calm green = "safe/secure", deliberately distinct from the cyan brand accent. */
+.privacy {
+  padding: 0;
+  border-top: none;
+  margin-bottom: 16px;
+}
+.privacy-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(61, 220, 132, 0.45);
+  border-radius: 12px;
+  background: rgba(61, 220, 132, 0.09);
+}
+.privacy-lock {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  color: #3ddc84;
+}
+.privacy-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.privacy-text strong { color: #6bf2a6; font-size: 15px; }
+.privacy-text small { color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+
+.privacy-why { margin: 8px 2px 0; }
+.privacy-why summary {
+  color: var(--muted);
+  font-size: 12.5px;
+  cursor: pointer;
+  list-style: none;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.privacy-why summary::-webkit-details-marker { display: none; }
+.privacy-why summary:hover { color: var(--text); }
+.privacy-why p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.privacy-why strong, .privacy-why em { color: var(--text); font-style: normal; }
+
 /* Donation CTA (top of the card) — cyan callout linking to GitHub Sponsors. */
 .cta {
   display: flex;

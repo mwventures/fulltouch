@@ -37,9 +37,9 @@ FullTouch splits the work:
   **Shadow DOM** overlay (isolated from page CSS), staying in fullscreen.
 - The **service worker** is the only context with `chrome.windows` /
   `chrome.tabs` access, so it handles the privileged actions: **✕** asks it to
-  call `chrome.windows.update({ state: "normal" })` (which actually drops the
-  window out of fullscreen), and the two-finger swipe asks it to activate the
-  next/previous tab.
+  call `chrome.windows.update({ state: "maximized" })` (which actually drops the
+  window out of fullscreen, matching Chrome's native F11 exit), and the
+  two-finger swipe asks it to activate the next/previous tab.
 - **Keyboard fallbacks** (`chrome.commands`) cover pages where content scripts
   can't run (chrome://, the Web Store, the new-tab page).
 
@@ -62,9 +62,20 @@ button shows.
 
 ## Privacy
 
-FullTouch collects and transmits **no data**. The `<all_urls>` host permission
-is required only so the gestures work on every site; nothing about the pages you
-visit leaves your device.
+**FullTouch collects no data. None. Ever.** It has no servers, no analytics, and
+contains **no networking code of any kind** — there is nothing in it that *could*
+send your data anywhere. It never reads, stores, or transmits the pages you
+visit. Your settings are saved only in your own Chrome (`chrome.storage.sync`).
+
+**About the scary install warning.** Chrome will say FullTouch can “read and
+change all your data on all sites.” That warning is mandatory for *any* extension
+allowed to run on every website — and FullTouch's gestures have to work
+everywhere you browse, so it has to request `<all_urls>`. But “allowed to run on
+every site” is not “collects your data”: the extension only watches for touch
+gestures and draws its own nav bar on top of the page. It's open-source, so you
+can verify every line yourself.
+
+See [`PRIVACY.md`](PRIVACY.md) for the full policy.
 
 <!-- THANKS — reveal at public launch by deleting this opening line and the closing line below.
 

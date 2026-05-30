@@ -412,7 +412,16 @@
     hudEl.style.display = "none";
 
     root.append(style, backdrop, bar, grabber, hint, hudEl);
-    (document.body || document.documentElement).appendChild(host);
+    // Attach to <html>, not <body>. position:fixed is relative to the viewport
+    // ONLY when no ancestor has a transform/filter/perspective/will-change/
+    // contain — any of those turns the nearest such ancestor into the containing
+    // block, so a fixed bar inside it anchors to the document (and scrolls away)
+    // instead of the screen. Pages routinely put a transform on <body> or an app
+    // wrapper; sitting above <body> on <html> escapes all of them, so the bar,
+    // hint, and full-viewport backdrop stay pinned to the screen at any scroll
+    // position. (A transform on <html> itself would still break this, but that's
+    // vanishingly rare.)
+    (document.documentElement || document.body).appendChild(host);
 
     ui = { host, root, bar, backdrop, url, reloadBtn, grabber, hint, hudEl };
     applySettings();
