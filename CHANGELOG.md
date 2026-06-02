@@ -4,6 +4,9 @@ All notable changes to FullTouch are recorded here. Newest at the top.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-02
+- The support button (nav bar pill and options-page callout) now links to a Stripe payment page instead of GitHub Sponsors, and is relabeled "Support" (the nav pill) / "Support FullTouch Here" (the options callout).
+
 ## [0.6.1] - 2026-05-30
 - Options page: the subtitle now reads "Fullscreen touch controls for tablets and 2-in-1 laptops", and the privacy explainer link is centered.
 - Swapped em-dashes for hyphens across the interface and docs.

@@ -291,7 +291,7 @@
     return svg;
   }
 
-  const SPONSOR_URL = "https://github.com/sponsors/mwventures";
+  const DONATE_URL = "https://buy.stripe.com/eVqbJ01Lt2UReRM7eOaAw00";
 
   let ui = null;
 
@@ -353,16 +353,16 @@
     const collapseBtn = mk("", "Hide bar", "collapse", hideBar);
     const exitBtn = mk("exit", "Exit fullscreen", "exit", exitFullscreen);
 
-    // Donate pill — opens GitHub Sponsors in a new tab.
+    // Support pill - opens the Stripe page in a new tab.
     const donateBtn = document.createElement("a");
     donateBtn.className = "donate";
-    donateBtn.href = SPONSOR_URL;
+    donateBtn.href = DONATE_URL;
     donateBtn.target = "_blank";
     donateBtn.rel = "noopener noreferrer";
     donateBtn.title = "Support FullTouch";
-    donateBtn.setAttribute("aria-label", "Donate to support FullTouch");
+    donateBtn.setAttribute("aria-label", "Support FullTouch");
     const donateText = document.createElement("span");
-    donateText.textContent = "Donate";
+    donateText.textContent = "Support";
     donateBtn.append(heartIcon(), donateText);
 
     bar.append(backBtn, fwdBtn, reloadBtn, newTabBtn, url, donateBtn, collapseBtn, exitBtn);

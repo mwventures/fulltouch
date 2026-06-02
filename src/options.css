@@ -165,7 +165,7 @@ footer { padding-top: 16px; }
 }
 .privacy-why strong, .privacy-why em { color: var(--text); font-style: normal; }
 
-/* Donation CTA (top of the card) — cyan callout linking to GitHub Sponsors. */
+/* Support CTA (top of the card) - cyan callout linking to the Stripe page. */
 .cta {
   display: flex;
   align-items: center;
