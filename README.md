@@ -64,8 +64,8 @@ button shows.
 
 **FullTouch collects no data. None. Ever.** It has no servers, no analytics, and
 contains **no networking code of any kind** - there is nothing in it that *could*
-send your data anywhere. It never reads, stores, or transmits the pages you
-visit. Your settings are saved only in your own Chrome (`chrome.storage.sync`).
+send your data anywhere. It never stores or transmits the pages you visit. Your
+settings are saved only in your own Chrome (`chrome.storage.sync`).
 
 **About the scary install warning.** Chrome will say FullTouch can “read and
 change all your data on all sites.” That warning is mandatory for *any* extension
@@ -77,12 +77,16 @@ can verify every line yourself.
 
 See [`PRIVACY.md`](PRIVACY.md) for the full policy.
 
+## License
+
+MIT - see [`LICENSE`](LICENSE).
+
 <!-- THANKS - reveal at public launch by deleting this opening line and the closing line below.
 
 ## Thanks 🦴
 
-FullTouch is free and open-source. Huge thanks to the folks keeping our Chief Canine
-Officer, Cookie Nibblestien, in ample biscuit supplies! (Add the sponsor markers from
-scripts/sponsor-tiers.md here, or list names by hand.)
+FullTouch is free and open-source. Huge thanks to everyone who chips in via the
+support button to keep the project going - and our Chief Canine Officer, Cookie
+Nibblestien, in ample biscuit supplies!
 -->
 

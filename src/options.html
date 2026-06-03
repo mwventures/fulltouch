@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Copyright (c) 2026 Morningwood Ventures LLC. Licensed under the MIT License. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -8,6 +9,14 @@
   </head>
   <body>
     <main class="card">
+      <header>
+        <img src="../icons/icon48.png" width="40" height="40" alt="" />
+        <div>
+          <h1>FullTouch</h1>
+          <p class="sub">Fullscreen touch controls for tablets and 2-in-1 laptops</p>
+        </div>
+      </header>
+
       <section class="privacy" aria-label="Privacy">
         <div class="privacy-badge">
           <svg class="privacy-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -16,7 +25,7 @@
           </svg>
           <div class="privacy-text">
             <strong>No data collected. None. Ever.</strong>
-            <small>FullTouch has no servers and no analytics. It never reads, stores, or transmits the pages you visit - nothing leaves your device. Your settings below are saved only in your own Chrome.</small>
+            <small>FullTouch has no servers and no analytics. It never stores or transmits the pages you visit - nothing leaves your device. Your settings below are saved only in your own Chrome.</small>
           </div>
         </div>
         <details class="privacy-why">
@@ -33,13 +42,9 @@
         </div>
       </a>
 
-      <header>
-        <img src="../icons/icon48.png" width="40" height="40" alt="" />
-        <div>
-          <h1>FullTouch</h1>
-          <p class="sub">Fullscreen touch controls for tablets and 2-in-1 laptops</p>
-        </div>
-      </header>
+      <hr />
+      <p class="page-note">FYI: Extensions (including FullTouch) DO NOT work on certain pages like New Tab, Chrome Settings, or the Chrome Web Store.</p>
+      <hr />
 
       <section>
         <label class="row switch">
@@ -102,6 +107,13 @@
             <small>Include a reload button in the bar.</small>
           </span>
           <input type="checkbox" id="showReload" />
+        </label>
+        <label class="row switch">
+          <span>
+            <strong>Tab strip</strong>
+            <small>Show a row of your open tabs below the bar - tap one to switch. Reads open-tab titles and icons on your device only; nothing is stored or sent.</small>
+          </span>
+          <input type="checkbox" id="tabStrip" />
         </label>
         <label class="row">
           <span>

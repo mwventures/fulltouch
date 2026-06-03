@@ -4,6 +4,12 @@ All notable changes to FullTouch are recorded here. Newest at the top.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-06-02
+- First public release.
+- Added a tab strip (on by default): a row of your open tabs below the nav bar - tap one to switch, or turn it off in Settings. It reads open-tab titles and icons on your device only - nothing is stored or sent.
+- Options page: moved the FullTouch title and tagline to the very top, and added a note that extensions (FullTouch included) can't run on pages like the New Tab, Chrome Settings, or the Chrome Web Store.
+- Licensed under the MIT license, with per-file copyright headers (Morningwood Ventures LLC).
+
 ## [0.7.0] - 2026-06-02
 - The support button (nav bar pill and options-page callout) now links to a Stripe payment page instead of GitHub Sponsors, and is relabeled "Support" (the nav pill) / "Support FullTouch Here" (the options callout).
 

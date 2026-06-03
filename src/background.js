@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Morningwood Ventures LLC. Licensed under the MIT License.
+
 // FullTouch — service worker (MV3, event-driven).
 //
 // The content script can detect gestures and render UI, but it lives in an
@@ -15,6 +17,7 @@ const DEFAULTS = {
   searchEngine: "google", // google | bing | duckduckgo | custom
   customSearchTemplate: "https://example.com/search?q=%s",
   showReload: true,
+  tabStrip: true, // show a strip of the window's open tabs below the nav bar
   debug: false,
 };
 
@@ -64,6 +67,38 @@ async function cycleTab(windowId, dir) {
   }
 }
 
+// List the sender window's tabs for the optional tab strip. We return only
+// id/title/favicon/active - never the URL. title/favIconUrl come through because
+// the extension holds the <all_urls> host permission (Chrome reveals those
+// fields for tabs matching a host permission), so this still needs no "tabs"
+// permission. Tabs on restricted pages (chrome://, the Web Store) don't match,
+// so they come back with empty title/icon and render with a fallback.
+async function listTabs(windowId) {
+  if (windowId == null) return [];
+  try {
+    const tabs = (await chrome.tabs.query({ windowId })).sort((a, b) => a.index - b.index);
+    return tabs.map((t) => ({
+      id: t.id,
+      title: t.title || "",
+      favIconUrl: t.favIconUrl || "",
+      active: !!t.active,
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
+// Activate a tab the user tapped in the strip. Like cycleTab, update() needs no
+// "tabs" permission.
+async function activateTab(tabId) {
+  if (tabId == null) return;
+  try {
+    await chrome.tabs.update(tabId, { active: true });
+  } catch (e) {
+    // Tab may have closed; nothing actionable.
+  }
+}
+
 // The fullscreen coach mark should appear once per fullscreen *session* for a
 // window, not once per tab. Each tab is a separate content script, so the one
 // shared worker tracks which windows have already shown it: the content script
@@ -86,6 +121,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // fields, not creating tabs — so the minimal-permission stance is preserved.
     chrome.tabs.create({ windowId: sender.tab?.windowId })
       .then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }));
+    return true; // async response
+  }
+  if (msg?.type === "listTabs") {
+    listTabs(sender.tab?.windowId).then((tabs) => sendResponse({ tabs }));
+    return true; // async response
+  }
+  if (msg?.type === "activateTab") {
+    activateTab(msg.tabId).then(() => sendResponse({ ok: true }));
     return true; // async response
   }
   if (msg?.type === "fullscreenHintCheck") {

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Morningwood Ventures LLC. Licensed under the MIT License.
+
 // FullTouch — options page. Settings live in chrome.storage.sync and are read
 // live by both the content script and the service worker.
 
@@ -11,6 +13,7 @@ const DEFAULTS = {
   searchEngine: "google",
   customSearchTemplate: "https://example.com/search?q=%s",
   showReload: true,
+  tabStrip: true,
   debug: false,
 };
 
@@ -22,6 +25,7 @@ const fields = {
   tabSwitchReverse: { el: "tabSwitchReverse", type: "checkbox" },
   grabber: { el: "grabber", type: "value" },
   showReload: { el: "showReload", type: "checkbox" },
+  tabStrip: { el: "tabStrip", type: "checkbox" },
   searchEngine: { el: "searchEngine", type: "value" },
   customSearchTemplate: { el: "customSearchTemplate", type: "value" },
   debug: { el: "debug", type: "checkbox" },

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Morningwood Ventures LLC. Licensed under the MIT License.
+
 // FullTouch — content script.
 //
 // Two jobs:
@@ -25,6 +27,7 @@
     searchEngine: "google",
     customSearchTemplate: "https://example.com/search?q=%s",
     showReload: true,
+    tabStrip: true, // show a strip of the window's open tabs below the nav bar
     debug: false,
   };
 
@@ -124,7 +127,7 @@
     :host { all: initial; }
     .bar {
       position: fixed; top: 0; left: 0; right: 0;
-      display: flex; align-items: center; gap: 6px;
+      display: flex; flex-direction: column; align-items: stretch; gap: 8px;
       box-sizing: border-box; padding: 8px 10px;
       font: 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       background: rgba(28, 28, 32, 0.96); color: #fff;
@@ -134,6 +137,7 @@
       z-index: 2147483647; backdrop-filter: blur(8px);
     }
     .bar.open { transform: translateY(0); }
+    .bar-row { display: flex; align-items: center; gap: 6px; }
     button {
       all: unset; box-sizing: border-box;
       display: inline-flex; align-items: center; justify-content: center;
@@ -156,7 +160,34 @@
     .url:focus { border-color: #00bcd4; background: rgba(255, 255, 255, 0.14); }
     .url::placeholder { color: rgba(255, 255, 255, 0.5); }
 
-    /* Donate pill — subtle cyan with a left-to-right shimmer + slight glow. */
+    /* Tab strip - optional row of the window's open tabs (settings-gated). */
+    .tabstrip {
+      display: flex; align-items: center; gap: 6px;
+      overflow-x: auto; overflow-y: hidden; padding-bottom: 2px;
+      scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    }
+    .tabstrip::-webkit-scrollbar { height: 6px; }
+    .tabstrip::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+    /* Equal width, shrinking together to stay on one row (Chrome-like). The
+       min-width floor collapses crowded tabs to favicon-only rather than to
+       nothing; the strip's overflow-x is only a fallback past ~25 tabs. */
+    .tab {
+      flex: 1 1 0; height: 34px; min-width: 44px; max-width: 220px;
+      justify-content: flex-start; gap: 7px; padding: 0 10px;
+      border-radius: 9px; font-size: 13px; color: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.06); border: 1px solid transparent;
+    }
+    .tab:hover { background: rgba(255, 255, 255, 0.12); }
+    .tab.active {
+      background: rgba(0, 188, 212, 0.16); border-color: rgba(0, 188, 212, 0.5); color: #fff;
+    }
+    .tab-fav { flex: none; width: 16px; height: 16px; border-radius: 3px; object-fit: contain; }
+    .tab-fav-fallback {
+      width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.3);
+    }
+    .tab-title { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Support pill - subtle cyan with a left-to-right shimmer + slight glow. */
     .donate {
       position: relative; overflow: hidden;
       display: inline-flex; align-items: center; gap: 6px;
@@ -279,7 +310,7 @@
     return svg;
   }
 
-  // Filled heart for the Donate pill (the icons above are stroke-only).
+  // Filled heart for the Support pill (the icons above are stroke-only).
   function heartIcon() {
     const svg = document.createElementNS(SVG_NS, "svg");
     svg.setAttribute("viewBox", "0 0 24 24");
@@ -365,7 +396,18 @@
     donateText.textContent = "Support";
     donateBtn.append(heartIcon(), donateText);
 
-    bar.append(backBtn, fwdBtn, reloadBtn, newTabBtn, url, donateBtn, collapseBtn, exitBtn);
+    const barRow = document.createElement("div");
+    barRow.className = "bar-row";
+    barRow.append(backBtn, fwdBtn, reloadBtn, newTabBtn, url, donateBtn, collapseBtn, exitBtn);
+
+    // Open-tabs strip, populated when the bar opens (on by default; settings-gated).
+    const tabstrip = document.createElement("div");
+    tabstrip.className = "tabstrip";
+    tabstrip.setAttribute("role", "tablist");
+    tabstrip.setAttribute("aria-label", "Open tabs");
+    tabstrip.style.display = "none";
+
+    bar.append(barRow, tabstrip);
 
     // swipe up on the bar collapses it
     let barStartY = null;
@@ -423,7 +465,7 @@
     // vanishingly rare.)
     (document.documentElement || document.body).appendChild(host);
 
-    ui = { host, root, bar, backdrop, url, reloadBtn, grabber, hint, hudEl };
+    ui = { host, root, bar, backdrop, url, reloadBtn, grabber, hint, hudEl, tabstrip };
     applySettings();
     return ui;
   }
@@ -436,6 +478,7 @@
     ui.reloadBtn.style.display = settings.showReload ? "" : "none";
     ui.hudEl.style.display = settings.debug ? "" : "none";
     updateGrabber();
+    refreshTabStrip();
   }
 
   function updateGrabber() {
@@ -461,6 +504,7 @@
     ui.backdrop.classList.add("open");
     hideFullscreenHint();
     updateGrabber();
+    refreshTabStrip();
   }
 
   function hideBar() {
@@ -478,6 +522,78 @@
 
   function barIsOpen() {
     return !!(ui && ui.bar.classList.contains("open"));
+  }
+
+  // ---- Open-tabs strip ------------------------------------------------------
+  // Optional row of the window's tabs below the bar. The worker returns only
+  // each tab's id/title/favicon/active state (never the URL), read on-device via
+  // the existing <all_urls> host permission - so this needs no "tabs" permission
+  // and nothing is stored or sent. Re-snapshotted each time the bar opens.
+  async function refreshTabStrip() {
+    if (!ui) return;
+    if (!settings.tabStrip || !barIsOpen()) {
+      ui.tabstrip.style.display = "none";
+      ui.tabstrip.replaceChildren();
+      return;
+    }
+    let tabs = [];
+    try {
+      const resp = await chrome.runtime.sendMessage({ type: "listTabs" });
+      tabs = (resp && resp.tabs) || [];
+    } catch (e) { /* worker unavailable; leave the strip empty */ }
+    renderTabStrip(tabs);
+  }
+
+  function renderTabStrip(tabs) {
+    // The await in refreshTabStrip can resolve after the bar closed or the
+    // setting flipped, so re-check before touching the DOM.
+    if (!ui || !settings.tabStrip || !barIsOpen()) return;
+    ui.tabstrip.replaceChildren();
+    if (!tabs.length) {
+      ui.tabstrip.style.display = "none";
+      return;
+    }
+    ui.tabstrip.style.display = "";
+    for (const t of tabs) {
+      const b = document.createElement("button");
+      b.className = t.active ? "tab active" : "tab";
+      b.setAttribute("role", "tab");
+      const name = t.title || "Untitled tab";
+      b.title = name;
+      b.setAttribute("aria-label", name);
+      if (t.active) b.setAttribute("aria-selected", "true");
+
+      if (t.favIconUrl) {
+        const img = document.createElement("img");
+        img.className = "tab-fav";
+        img.src = t.favIconUrl;
+        img.alt = "";
+        // Page CSP / mixed-content can block the favicon - fall back to a dot.
+        img.addEventListener("error", () => {
+          const dot = document.createElement("span");
+          dot.className = "tab-fav tab-fav-fallback";
+          img.replaceWith(dot);
+        });
+        b.appendChild(img);
+      } else {
+        const dot = document.createElement("span");
+        dot.className = "tab-fav tab-fav-fallback";
+        b.appendChild(dot);
+      }
+
+      const label = document.createElement("span");
+      label.className = "tab-title";
+      label.textContent = name;
+      b.appendChild(label);
+
+      b.addEventListener("click", () => {
+        chrome.runtime.sendMessage({ type: "activateTab", tabId: t.id }).catch(() => {});
+        hideBar();
+      });
+      ui.tabstrip.appendChild(b);
+    }
+    const active = ui.tabstrip.querySelector(".tab.active");
+    if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
   }
 
   // ---- Fullscreen coach mark ------------------------------------------

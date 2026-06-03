@@ -16,3 +16,9 @@ web-ext-artifacts/
 # Python
 __pycache__/
 *.pyc
+
+# Internal dev/planning docs - kept local, never published to the public repo
+CLAUDE.md
+TODO.md
+scripts/sponsor-tiers.md
+scripts/store-listing.md

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Morningwood Ventures LLC. Licensed under the MIT License.
 """Generate FullTouch's PNG icons with no third-party dependencies.
 
 The mark: a cyan rounded square with a white pill (the nav bar) near the top
