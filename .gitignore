@@ -13,6 +13,9 @@ Thumbs.db
 dist/
 web-ext-artifacts/
 
+# Local branding/promo source art (composed outside the repo, not shipped)
+branding/
+
 # Python
 __pycache__/
 *.pyc
