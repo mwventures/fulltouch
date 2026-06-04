@@ -72,8 +72,9 @@ change all your data on all sites.” That warning is mandatory for *any* extens
 allowed to run on every website - and FullTouch's gestures have to work
 everywhere you browse, so it has to request `<all_urls>`. But “allowed to run on
 every site” is not “collects your data”: the extension only watches for touch
-gestures and draws its own nav bar on top of the page. It's open-source, so you
-can verify every line yourself.
+gestures and draws its own nav bar on top of the page. It's
+[open-source](https://github.com/mwventures/fulltouch), so you can verify every
+line yourself.
 
 See [`PRIVACY.md`](PRIVACY.md) for the full policy.
 
@@ -81,12 +82,9 @@ See [`PRIVACY.md`](PRIVACY.md) for the full policy.
 
 MIT - see [`LICENSE`](LICENSE).
 
-<!-- THANKS - reveal at public launch by deleting this opening line and the closing line below.
-
 ## Thanks 🦴
 
 FullTouch is free and open-source. Huge thanks to everyone who chips in via the
 support button to keep the project going - and our Chief Canine Officer, Cookie
 Nibblestien, in ample biscuit supplies!
--->
 
