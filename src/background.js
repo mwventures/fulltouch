@@ -7,8 +7,14 @@
 // drop the *browser* (F11) window out of fullscreen. So the content script
 // asks us, and we do it here.
 
-const DEFAULTS = {
+// `enabled` is per-device (chrome.storage.local) so turning FullTouch off on a
+// non-touch machine doesn't disable it on the user's other synced Chromes; every
+// other setting still syncs (chrome.storage.sync). Keep these three blocks
+// byte-identical across background.js, content.js, and options.js.
+const LOCAL_DEFAULTS = {
   enabled: true,
+};
+const SYNC_DEFAULTS = {
   edgeZonePx: 64, // how close to the top edge a swipe must start
   thresholdPx: 40, // how far down the swipe must travel to reveal the bar
   tabSwitch: true, // two-finger horizontal swipe switches tabs (touchscreen)
@@ -20,13 +26,22 @@ const DEFAULTS = {
   tabStrip: true, // show a strip of the window's open tabs below the nav bar
   debug: false,
 };
+const DEFAULTS = { ...LOCAL_DEFAULTS, ...SYNC_DEFAULTS };
 
 // Seed defaults on first install so the options page and content script agree,
 // and open the options page once as onboarding — only on a fresh install, not
 // on updates or browser restarts.
 chrome.runtime.onInstalled.addListener(async (details) => {
-  const stored = await chrome.storage.sync.get(DEFAULTS);
-  await chrome.storage.sync.set({ ...DEFAULTS, ...stored });
+  // Seed each storage area with only its own keys, so `enabled` lands in local
+  // (per-device) and the synced seed never re-asserts it.
+  const [synced, local] = await Promise.all([
+    chrome.storage.sync.get(SYNC_DEFAULTS),
+    chrome.storage.local.get(LOCAL_DEFAULTS),
+  ]);
+  await Promise.all([
+    chrome.storage.sync.set({ ...SYNC_DEFAULTS, ...synced }),
+    chrome.storage.local.set({ ...LOCAL_DEFAULTS, ...local }),
+  ]);
   if (details.reason === "install") chrome.runtime.openOptionsPage();
 });
 

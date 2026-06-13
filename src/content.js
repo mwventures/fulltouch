@@ -17,8 +17,14 @@
   if (window.top !== window || window.__fullTouchInjected) return;
   window.__fullTouchInjected = true;
 
-  const DEFAULTS = {
+  // `enabled` is per-device (chrome.storage.local) so turning FullTouch off on a
+  // non-touch machine doesn't disable it on the user's other synced Chromes; every
+  // other setting still syncs (chrome.storage.sync). Keep these three blocks
+  // byte-identical across background.js, content.js, and options.js.
+  const LOCAL_DEFAULTS = {
     enabled: true,
+  };
+  const SYNC_DEFAULTS = {
     edgeZonePx: 64, // how close to the top edge a swipe must start
     thresholdPx: 40, // how far down the swipe must travel to reveal the bar
     tabSwitch: true, // two-finger horizontal swipe switches tabs (touchscreen)
@@ -30,15 +36,23 @@
     tabStrip: true, // show a strip of the window's open tabs below the nav bar
     debug: false,
   };
+  const DEFAULTS = { ...LOCAL_DEFAULTS, ...SYNC_DEFAULTS };
 
   let settings = { ...DEFAULTS };
 
-  chrome.storage.sync.get(DEFAULTS).then((s) => {
-    settings = { ...DEFAULTS, ...s };
+  // Read each area for only its own keys; local `enabled` wins over the merged
+  // defaults (and ignores any stale `enabled` left behind in sync storage).
+  Promise.all([
+    chrome.storage.sync.get(SYNC_DEFAULTS),
+    chrome.storage.local.get(LOCAL_DEFAULTS),
+  ]).then(([s, l]) => {
+    settings = { ...DEFAULTS, ...s, ...l };
     applySettings();
   });
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== "sync") return;
+    // `enabled` only ever changes in local, every other key only in sync, so the
+    // changed keys from either area can be merged directly.
+    if (area !== "sync" && area !== "local") return;
     for (const [k, { newValue }] of Object.entries(changes)) settings[k] = newValue;
     applySettings();
   });
@@ -279,6 +293,13 @@
       .bar { transition: none; }
       .hint.show { animation: none; }
       .donate::before { animation: none; }
+    }
+    /* Never paint our overlay into printed/PDF output. Chrome repeats
+       position:fixed elements on every printed page and drops the transform
+       that hides the bar off-screen, so without this the bar (and its Support
+       pill) leak onto every page - most visibly in Google Docs' print preview. */
+    @media print {
+      :host { display: none !important; }
     }
   `;
 

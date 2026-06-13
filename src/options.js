@@ -1,10 +1,15 @@
 // Copyright (c) 2026 Morningwood Ventures LLC. Licensed under the MIT License.
 
-// FullTouch — options page. Settings live in chrome.storage.sync and are read
-// live by both the content script and the service worker.
+// FullTouch — options page. `enabled` lives in chrome.storage.local (per-device);
+// every other setting lives in chrome.storage.sync. Both are read live by the
+// content script and the service worker.
 
-const DEFAULTS = {
+// Keep these three blocks byte-identical across background.js, content.js, and
+// options.js.
+const LOCAL_DEFAULTS = {
   enabled: true,
+};
+const SYNC_DEFAULTS = {
   edgeZonePx: 64,
   thresholdPx: 40,
   tabSwitch: true,
@@ -16,6 +21,7 @@ const DEFAULTS = {
   tabStrip: true,
   debug: false,
 };
+const DEFAULTS = { ...LOCAL_DEFAULTS, ...SYNC_DEFAULTS };
 
 const fields = {
   enabled: { el: "enabled", type: "checkbox" },
@@ -69,14 +75,20 @@ function syncTabSwitchRow() {
 }
 
 async function load() {
-  const stored = await chrome.storage.sync.get(DEFAULTS);
+  const [s, l] = await Promise.all([
+    chrome.storage.sync.get(SYNC_DEFAULTS),
+    chrome.storage.local.get(LOCAL_DEFAULTS),
+  ]);
+  const stored = { ...s, ...l };
   for (const key of Object.keys(fields)) writeField(key, stored[key]);
   syncCustomRow();
   syncTabSwitchRow();
 }
 
 async function saveField(key) {
-  await chrome.storage.sync.set({ [key]: readField(key) });
+  // `enabled` is per-device; everything else syncs.
+  const area = key in LOCAL_DEFAULTS ? "local" : "sync";
+  await chrome.storage[area].set({ [key]: readField(key) });
   flash("Saved");
 }
 

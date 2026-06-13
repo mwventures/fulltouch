@@ -4,6 +4,11 @@ All notable changes to FullTouch are recorded here. Newest at the top.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-06-13
+- Added a "Problems or Suggestions?" line at the bottom of the options page with a one-tap email link to morningwoodventures@gmail.com.
+- The Enabled on/off switch is now per-device: turning FullTouch off on one computer no longer disables it on your other synced Chromes (every other setting still syncs). Note: with this update each device starts enabled, so if you had FullTouch turned off everywhere, you'll need to turn it off again on each device where you don't want it.
+- Fixed the nav bar (and its Support pill) leaking into printed pages and print preview - most noticeable as a stray bar at the bottom of each page when printing from Google Docs. The overlay is now hidden in print output.
+
 ## [1.0.0] - 2026-06-02
 - First public release.
 - Added a tab strip (on by default): a row of your open tabs below the nav bar - tap one to switch, or turn it off in Settings. It reads open-tab titles and icons on your device only - nothing is stored or sent.
